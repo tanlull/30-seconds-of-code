@@ -38,4 +38,12 @@ npm install
 # Pin to versions compatible with Node 10 (latest releases require Node >= 12/14).
 npm install -g "semistandard@^12.0.1" "prettier@^1.14.2"
 
+# Expose the lint tools on the default PATH too, so they are callable from any
+# shell (not just via `npm run`, which already prepends the Node 10 bin dir).
+if [ -d /usr/local/cargo/bin ]; then
+  for b in semistandard prettier; do
+    [ -x "$N10/$b" ] && ln -sf "$N10/$b" "/usr/local/cargo/bin/$b"
+  done
+fi
+
 echo "Environment ready: node $(node --version), npm $(npm --version)"
