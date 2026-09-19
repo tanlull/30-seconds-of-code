@@ -1,0 +1,4 @@
+{
+  "name": "30-seconds-of-code",
+  "install": "bash .cursor/install.sh"
+}
