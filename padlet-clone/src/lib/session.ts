@@ -33,7 +33,15 @@ export async function getSessionUser(): Promise<SessionUser | null> {
   return { id: user.id, name: user.name, color: user.color };
 }
 
-/** Stable per-visitor key used to dedupe anonymous reactions. */
+/** Read the visitor key without mutating cookies (safe in Server Components). */
+export function readVisitorKey(): string {
+  return cookies().get("boardly_visitor")?.value || "";
+}
+
+/**
+ * Stable per-visitor key used to dedupe anonymous reactions.
+ * Sets the cookie if missing — only call from Route Handlers / Server Actions.
+ */
 export function getVisitorKey(): string {
   const jar = cookies();
   let key = jar.get("boardly_visitor")?.value;

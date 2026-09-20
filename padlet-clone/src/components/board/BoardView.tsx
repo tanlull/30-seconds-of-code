@@ -292,6 +292,8 @@ export default function BoardView({
           allowReactions={board.allowReactions}
           allowComments={board.allowComments}
           canManage={isOwner}
+          sections={board.format === "columns" ? board.sections : undefined}
+          onMoveSection={(sectionId) => onMove(detailPost.id, { sectionId })}
           onClose={() => setDetailId(null)}
           onReact={() => onReact(detailPost.id)}
           onAddComment={(t) => addComment(detailPost.id, t)}

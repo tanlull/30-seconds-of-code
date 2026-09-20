@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { ClientPost } from "@/lib/boardTypes";
+import type { ClientPost, ClientSection } from "@/lib/boardTypes";
 
 export default function PostDetailModal({
   post,
@@ -9,22 +9,26 @@ export default function PostDetailModal({
   allowReactions,
   allowComments,
   canManage,
+  sections,
   onClose,
   onReact,
   onAddComment,
   onEdit,
-  onDelete
+  onDelete,
+  onMoveSection
 }: {
   post: ClientPost;
   reactionIcon: string;
   allowReactions: boolean;
   allowComments: boolean;
   canManage: boolean;
+  sections?: ClientSection[];
   onClose: () => void;
   onReact: () => void;
   onAddComment: (text: string) => Promise<void> | void;
   onEdit: () => void;
   onDelete: () => void;
+  onMoveSection?: (sectionId: string | null) => void;
 }) {
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
@@ -88,6 +92,24 @@ export default function PostDetailModal({
             )}
           </div>
         </div>
+
+        {sections && sections.length > 0 && onMoveSection && (
+          <div className="flex items-center gap-2 border-b border-gray-100 px-5 py-3 text-sm">
+            <span className="text-gray-500">Section</span>
+            <select
+              value={post.sectionId ?? ""}
+              onChange={(e) => onMoveSection(e.target.value || null)}
+              className="rounded-lg border border-gray-300 px-2 py-1 text-sm"
+            >
+              <option value="">Unsorted</option>
+              {sections.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.title}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
 
         <div className="px-5 py-4">
           {post.comments.length === 0 && <p className="text-sm text-gray-400">No comments yet.</p>}

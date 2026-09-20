@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import BoardView from "@/components/board/BoardView";
 import { getBoardBySlug, serializeBoard } from "@/lib/serialize";
-import { getSessionUser, getVisitorKey } from "@/lib/session";
+import { getSessionUser, readVisitorKey } from "@/lib/session";
 import type { ClientBoard } from "@/lib/boardTypes";
 
 export const dynamic = "force-dynamic";
@@ -15,7 +15,7 @@ export default async function BoardPage({ params }: { params: { slug: string } }
     notFound();
   }
 
-  const visitorKey = getVisitorKey();
+  const visitorKey = readVisitorKey();
   const serialized = JSON.parse(JSON.stringify(serializeBoard(board, visitorKey))) as ClientBoard;
 
   return <BoardView initialBoard={serialized} user={user} />;
