@@ -42,11 +42,15 @@ choose from.
 
 ### Sign in
 
-1. Click **Sign in** at the top-right of any page.
-2. Enter a display name (no password — this build uses a lightweight demo
-   sign-in) and click **Continue**.
-3. Your colored avatar appears at the top-right. You can **Sign out** from the
-   same menu.
+Click **Sign in** at the top-right of any page. The popover has three tabs:
+
+- **Guest** — enter just a display name for instant demo access (no password).
+- **Sign up** — create a real account with **display name + email + password**.
+  Passwords are hashed with scrypt and stored locally.
+- **Log in** — sign back into an existing account with email + password.
+
+Your colored avatar appears at the top-right once signed in. Use **Sign out**
+from the same area to log out.
 
 ### The dashboard
 
@@ -135,6 +139,27 @@ The template pre-fills the board's format, wallpaper, sections and starter posts
 
 ![A board created from the Lesson Plan template](images/08-columns-from-template.webp)
 
+### Create with AI
+
+On the Dashboard, click **✨ Create with AI**, describe what you want (or pick an
+example chip), and click **Generate board**. Boardly reads your prompt, chooses a
+suitable format, and fills in starter posts:
+
+- "A travel map of my trip to Tokyo, Paris and Bangkok" → **Map** with pins
+- "A project plan for launching a podcast" → **Columns** (To do / Doing / Done)
+- "A history timeline of space exploration" → **Timeline**
+- "Brainstorm ideas for a birthday party" → **Wall** of prompts
+
+The generator runs offline (no API key required); a real LLM can be plugged into
+`src/lib/aiGenerate.ts` if desired.
+
+### Real-time collaboration
+
+Boards update **live**. When anyone adds a post, reacts, comments, moves a card
+or changes settings, everyone viewing the board sees it within a moment — powered
+by Server-Sent Events (with a polling fallback). Open the same board in two
+windows to watch changes appear instantly.
+
 ### 3.6 Share and export
 
 - **Share** — copies the board link to your clipboard so others can open it.
@@ -211,10 +236,12 @@ The app uses SQLite, so no external database is required.
 
 ## 6. Notes and limits
 
-- **Real-time** updates use polling (~every 3 seconds), not WebSockets. True
-  multi-cursor/CRDT collaboration is future work.
-- **Sign-in** is a demo display-name login — there are no passwords or external
-  providers (Google/Microsoft/Apple) yet.
-- **AI board generation** is not implemented yet.
+- **Real-time** updates use Server-Sent Events (instant push) with a polling
+  fallback. Full multi-cursor/CRDT co-editing is still future work.
+- **Accounts**: email + password (hashed with scrypt) and a quick guest mode are
+  supported. External OAuth providers (Google/Microsoft/Apple) require provider
+  credentials and are not wired up.
+- **AI board generation** works offline via a heuristic generator; plug an LLM
+  into `src/lib/aiGenerate.ts` for richer output.
 - Boardly is an independent, Padlet-inspired demo. It uses its own branding and
   does not include any Padlet assets or trademarks.
