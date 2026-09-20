@@ -39,6 +39,7 @@ export function serializeBoard(board: BoardData, visitorKey: string) {
     posts: board.posts.map((p) => ({
       id: p.id,
       sectionId: p.sectionId,
+      authorId: p.authorId,
       authorName: p.authorName,
       subject: p.subject,
       body: p.body,

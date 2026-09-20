@@ -57,14 +57,15 @@ export default function Home() {
           </h2>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-3">
             {FORMATS.map((f) => (
-              <div
+              <Link
                 key={f.id}
+                href={`/dashboard?new=1&format=${f.id}`}
                 className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-post"
               >
                 <div className="text-3xl">{f.icon}</div>
                 <div className="mt-2 font-semibold text-gray-800">{f.name}</div>
                 <div className="mt-1 text-sm text-gray-500">{f.blurb}</div>
-              </div>
+              </Link>
             ))}
           </div>
         </section>

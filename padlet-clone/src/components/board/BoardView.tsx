@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { api } from "@/lib/clientApi";
@@ -10,6 +10,7 @@ import type { ClientBoard, ClientPost, SessionUserLite } from "@/lib/boardTypes"
 import PostEditorModal, { EditorValue } from "./PostEditorModal";
 import PostDetailModal from "./PostDetailModal";
 import SettingsPanel from "./SettingsPanel";
+import SignIn from "@/components/SignIn";
 import {
   WallLayout,
   GridLayout,
@@ -226,8 +227,9 @@ export default function BoardView({
 
   return (
     <div className="min-h-screen" style={{ background: wp.css }}>
-      {/* Header */}
-      <div className="sticky top-0 z-20 border-b border-white/40 bg-white/60 backdrop-blur">
+      {/* Header — pointer-events split so the sticky bar cannot swallow clicks on posts */}
+      <div className="pointer-events-none sticky top-0 z-30">
+        <div className="pointer-events-auto border-b border-white/40 bg-white/90">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-3 px-4 py-3">
           <Link href="/dashboard" className="font-display font-extrabold text-brand-600">
             ✦ Boardly
@@ -251,15 +253,20 @@ export default function BoardView({
                 ⚙ Settings
               </button>
             )}
+            <SignIn user={user} />
           </div>
+        </div>
         </div>
       </div>
 
       {/* Body */}
       <div
-        className="mx-auto max-w-7xl px-4 py-6"
+        className="relative z-0 mx-auto max-w-7xl px-4 py-6"
         onDoubleClick={(e) => {
-          if (e.target === e.currentTarget && board.format === "freeform") setEditor({ mode: "create" });
+          const t = e.target as HTMLElement;
+          if (t.closest("[data-post-card], button, a, input, textarea, select, .leaflet-container")) return;
+          if (board.format === "map") return;
+          setEditor({ mode: "create" });
         }}
       >
         {board.posts.length === 0 && board.format !== "map" && board.format !== "columns" && (
@@ -274,7 +281,7 @@ export default function BoardView({
       {board.format !== "map" && (
         <button
           onClick={() => setEditor({ mode: "create" })}
-          className="fixed bottom-6 right-6 z-20 flex h-14 w-14 items-center justify-center rounded-full bg-brand-500 text-3xl text-white shadow-xl transition hover:scale-105 hover:bg-brand-600"
+          className="fixed bottom-6 right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-brand-500 text-3xl text-white shadow-xl transition hover:scale-105 hover:bg-brand-600"
           aria-label="Add post"
         >
           +
@@ -307,7 +314,7 @@ export default function BoardView({
           reactionIcon={reactionIcon}
           allowReactions={board.allowReactions}
           allowComments={board.allowComments}
-          canManage={isOwner}
+          canManage={!!(isOwner || (user && detailPost.authorId && user.id === detailPost.authorId))}
           sections={board.format === "columns" ? board.sections : undefined}
           onMoveSection={(sectionId) => onMove(detailPost.id, { sectionId })}
           onClose={() => setDetailId(null)}

@@ -22,7 +22,7 @@ function sortByPos(a: ClientPost, b: ClientPost) {
 export function WallLayout(p: LayoutProps) {
   const posts = [...p.board.posts].sort(sortByPos);
   return (
-    <div className="masonry columns-1 sm:columns-2 lg:columns-3 xl:columns-4">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {posts.map((post) => (
         <PostCard
           key={post.id}
@@ -196,15 +196,28 @@ export function ColumnsLayout(p: LayoutProps) {
           </div>
           <div className="flex flex-1 flex-col gap-3">
             {bySection(s.id).map((post) => (
-              <div key={post.id} draggable onDragStart={(e) => e.dataTransfer.setData("text/post", post.id)}>
-                <PostCard
-                  post={post}
-                  reactionIcon={p.reactionIcon}
-                  allowReactions={p.board.allowReactions}
-                  onOpen={() => p.onOpen(post)}
-                  onReact={() => p.onReact(post.id)}
-                  compact
-                />
+              <div key={post.id} className="flex items-start gap-1">
+                <span
+                  draggable
+                  title="Drag to another column"
+                  onDragStart={(e) => {
+                    e.dataTransfer.setData("text/post", post.id);
+                    e.dataTransfer.effectAllowed = "move";
+                  }}
+                  className="mt-3 shrink-0 cursor-grab select-none px-0.5 text-sm leading-none text-gray-400 active:cursor-grabbing"
+                >
+                  ⋮⋮
+                </span>
+                <div className="min-w-0 flex-1">
+                  <PostCard
+                    post={post}
+                    reactionIcon={p.reactionIcon}
+                    allowReactions={p.board.allowReactions}
+                    onOpen={() => p.onOpen(post)}
+                    onReact={() => p.onReact(post.id)}
+                    compact
+                  />
+                </div>
               </div>
             ))}
           </div>
@@ -229,15 +242,28 @@ export function ColumnsLayout(p: LayoutProps) {
           <h3 className="mb-2 px-1 font-semibold text-gray-500">Unsorted</h3>
           <div className="flex flex-1 flex-col gap-3">
             {orphans.map((post) => (
-              <div key={post.id} draggable onDragStart={(e) => e.dataTransfer.setData("text/post", post.id)}>
-                <PostCard
-                  post={post}
-                  reactionIcon={p.reactionIcon}
-                  allowReactions={p.board.allowReactions}
-                  onOpen={() => p.onOpen(post)}
-                  onReact={() => p.onReact(post.id)}
-                  compact
-                />
+              <div key={post.id} className="flex items-start gap-1">
+                <span
+                  draggable
+                  title="Drag to another column"
+                  onDragStart={(e) => {
+                    e.dataTransfer.setData("text/post", post.id);
+                    e.dataTransfer.effectAllowed = "move";
+                  }}
+                  className="mt-3 shrink-0 cursor-grab select-none px-0.5 text-sm leading-none text-gray-400 active:cursor-grabbing"
+                >
+                  ⋮⋮
+                </span>
+                <div className="min-w-0 flex-1">
+                  <PostCard
+                    post={post}
+                    reactionIcon={p.reactionIcon}
+                    allowReactions={p.board.allowReactions}
+                    onOpen={() => p.onOpen(post)}
+                    onReact={() => p.onReact(post.id)}
+                    compact
+                  />
+                </div>
               </div>
             ))}
           </div>
@@ -257,24 +283,47 @@ export function ColumnsLayout(p: LayoutProps) {
 }
 
 export function FreeformLayout(p: LayoutProps) {
-  const dragRef = useRef<{ id: string; dx: number; dy: number } | null>(null);
+  const dragRef = useRef<{
+    id: string;
+    dx: number;
+    dy: number;
+    x0: number;
+    y0: number;
+    moved: boolean;
+    post: ClientPost;
+  } | null>(null);
   const areaRef = useRef<HTMLDivElement>(null);
 
   function onPointerDown(e: React.PointerEvent, post: ClientPost) {
+    if ((e.target as HTMLElement).closest("button, a, input, textarea")) return;
     const area = areaRef.current!.getBoundingClientRect();
-    dragRef.current = { id: post.id, dx: e.clientX - area.left - post.x, dy: e.clientY - area.top - post.y };
-    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    dragRef.current = {
+      id: post.id,
+      dx: e.clientX - area.left - post.x,
+      dy: e.clientY - area.top - post.y,
+      x0: e.clientX,
+      y0: e.clientY,
+      moved: false,
+      post
+    };
   }
   function onPointerMove(e: React.PointerEvent) {
     const d = dragRef.current;
     if (!d) return;
+    if (!d.moved) {
+      if (Math.hypot(e.clientX - d.x0, e.clientY - d.y0) < 8) return;
+      d.moved = true;
+      (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId);
+    }
     const area = areaRef.current!.getBoundingClientRect();
     const x = Math.max(0, e.clientX - area.left - d.dx);
     const y = Math.max(0, e.clientY - area.top - d.dy);
     p.onMove(d.id, { x, y });
   }
   function onPointerUp() {
+    const d = dragRef.current;
     dragRef.current = null;
+    if (d && !d.moved) p.onOpen(d.post);
   }
 
   return (
@@ -283,11 +332,12 @@ export function FreeformLayout(p: LayoutProps) {
       className="relative h-[70vh] w-full overflow-hidden rounded-xl"
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
+      onPointerCancel={onPointerUp}
     >
       {p.board.posts.map((post) => (
         <div
           key={post.id}
-          className="absolute w-56 touch-none"
+          className="absolute w-56"
           style={{ left: post.x, top: post.y }}
           onPointerDown={(e) => onPointerDown(e, post)}
         >

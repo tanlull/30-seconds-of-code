@@ -3,6 +3,8 @@
 export async function api<T = any>(url: string, method: string, body?: unknown): Promise<T> {
   const res = await fetch(url, {
     method,
+    credentials: "include",
+    cache: "no-store",
     headers: body ? { "Content-Type": "application/json" } : undefined,
     body: body ? JSON.stringify(body) : undefined
   });

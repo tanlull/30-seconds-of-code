@@ -6,11 +6,19 @@ import { api } from "@/lib/clientApi";
 import { FORMATS } from "@/lib/formats";
 import { WALLPAPERS } from "@/lib/wallpapers";
 
-export default function CreateBoard({ canCreate }: { canCreate: boolean }) {
+export default function CreateBoard({
+  canCreate,
+  initialFormat,
+  autoOpen
+}: {
+  canCreate: boolean;
+  initialFormat?: string;
+  autoOpen?: boolean;
+}) {
   const router = useRouter();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(!!autoOpen && canCreate);
   const [title, setTitle] = useState("");
-  const [format, setFormat] = useState("wall");
+  const [format, setFormat] = useState(initialFormat && FORMATS.some((f) => f.id === initialFormat) ? initialFormat : "wall");
   const [wallpaper, setWallpaper] = useState("aurora");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");

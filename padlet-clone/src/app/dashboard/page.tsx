@@ -8,7 +8,11 @@ import { getSessionUser } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
-export default async function Dashboard() {
+export default async function Dashboard({
+  searchParams
+}: {
+  searchParams?: { format?: string; new?: string };
+}) {
   const user = await getSessionUser();
 
   const mine = user
@@ -45,13 +49,22 @@ export default async function Dashboard() {
               {user ? `Hi, ${user.name} 👋` : "Your dashboard"}
             </h1>
             <p className="mt-1 text-gray-500">Make boards, browse templates, and collaborate.</p>
+            {searchParams?.new === "1" && !user && (
+              <p className="mt-2 text-sm font-medium text-brand-600">
+                Sign in at the top right, then you can create a {searchParams.format || "new"} board.
+              </p>
+            )}
           </div>
           <div className="flex items-center gap-3">
             <Link href="/gallery" className="rounded-full border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-100">
               Templates
             </Link>
             <AiCreate canCreate={!!user} />
-            <CreateBoard canCreate={!!user} />
+            <CreateBoard
+              canCreate={!!user}
+              initialFormat={searchParams?.format}
+              autoOpen={searchParams?.new === "1"}
+            />
           </div>
         </div>
 
