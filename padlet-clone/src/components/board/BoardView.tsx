@@ -226,7 +226,16 @@ export default function BoardView({
   }
 
   return (
-    <div className="min-h-screen" style={{ background: wp.css }}>
+    <div
+      className="min-h-screen"
+      style={{ background: wp.css }}
+      onDoubleClick={(e) => {
+        const t = e.target as HTMLElement;
+        if (t.closest("[data-post-card], button, a, input, textarea, select, .leaflet-container")) return;
+        if (board.format === "map") return;
+        setEditor({ mode: "create" });
+      }}
+    >
       {/* Header — pointer-events split so the sticky bar cannot swallow clicks on posts */}
       <div className="pointer-events-none sticky top-0 z-30">
         <div className="pointer-events-auto border-b border-white/40 bg-white/90">
@@ -260,15 +269,7 @@ export default function BoardView({
       </div>
 
       {/* Body */}
-      <div
-        className="relative z-0 mx-auto max-w-7xl px-4 py-6"
-        onDoubleClick={(e) => {
-          const t = e.target as HTMLElement;
-          if (t.closest("[data-post-card], button, a, input, textarea, select, .leaflet-container")) return;
-          if (board.format === "map") return;
-          setEditor({ mode: "create" });
-        }}
-      >
+      <div className="relative z-0 mx-auto min-h-[70vh] max-w-7xl px-4 py-6">
         {board.posts.length === 0 && board.format !== "map" && board.format !== "columns" && (
           <div className="rounded-2xl border-2 border-dashed border-white/70 bg-white/40 p-12 text-center text-gray-600">
             No posts yet. Tap the pink <b>+</b> button to add the first one!
