@@ -48,11 +48,21 @@ export default function PostDetailModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
       <div className="max-h-[90vh] w-full max-w-lg overflow-auto rounded-2xl bg-white shadow-2xl" onClick={(e) => e.stopPropagation()}>
         <div className="p-5" style={{ background: post.color }}>
-          <div className="mb-1 flex items-center gap-2 text-xs font-medium text-gray-600">
+          <div className="mb-1 flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 text-xs font-medium text-gray-600">
             <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-white/70 text-[10px]">
               {post.authorName.slice(0, 1).toUpperCase()}
             </span>
             {post.authorName}
+            </div>
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-full bg-white/80 px-2 py-1 text-sm font-medium text-gray-600 hover:bg-white"
+              aria-label="Close"
+            >
+              Close
+            </button>
           </div>
           {post.subject && <h3 className="font-display text-xl font-bold text-gray-900">{post.subject}</h3>}
           {post.imageUrl && (

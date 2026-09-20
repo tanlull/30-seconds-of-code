@@ -19,9 +19,18 @@ export default function PostCard({
 }) {
   return (
     <div
-      className="cursor-pointer overflow-hidden rounded-xl bg-white shadow-post transition hover:shadow-lg"
+      data-post-card={post.id}
+      role="button"
+      tabIndex={0}
+      className="relative z-10 cursor-pointer overflow-hidden rounded-xl bg-white shadow-post transition hover:shadow-lg"
       style={{ background: post.color }}
       onClick={onOpen}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onOpen();
+        }
+      }}
     >
       {post.imageUrl && (
         // eslint-disable-next-line @next/next/no-img-element

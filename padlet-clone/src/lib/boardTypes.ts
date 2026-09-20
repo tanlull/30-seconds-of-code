@@ -8,6 +8,7 @@ export type ClientComment = {
 export type ClientPost = {
   id: string;
   sectionId: string | null;
+  authorId: string | null;
   authorName: string;
   subject: string;
   body: string;

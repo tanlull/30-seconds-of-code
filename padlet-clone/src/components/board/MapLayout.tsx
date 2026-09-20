@@ -14,6 +14,8 @@ const pinIcon = L.divIcon({
 function ClickToAdd({ onAddAt }: { onAddAt: (lat: number, lng: number) => void }) {
   useMapEvents({
     click(e) {
+      const target = (e.originalEvent?.target as HTMLElement | undefined) || null;
+      if (target?.closest(".leaflet-marker-icon, .leaflet-popup, .leaflet-control")) return;
       onAddAt(e.latlng.lat, e.latlng.lng);
     }
   });

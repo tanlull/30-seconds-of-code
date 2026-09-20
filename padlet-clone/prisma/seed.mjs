@@ -26,7 +26,7 @@ async function main() {
   });
   await prisma.post.createMany({
     data: [
-      { boardId: wall.id, authorName: "Demo Maker", subject: "Hi there 👋", body: "Double-click the wall or press + to add a post.", color: "#ffec99", position: 0 },
+      { boardId: wall.id, authorName: "Demo Maker", subject: "Hi there 👋", body: "Click a post to open it. Press the pink + button (or double-click empty space) to add a post.", color: "#ffec99", position: 0 },
       { boardId: wall.id, authorName: "Demo Maker", subject: "Add media", body: "Posts can hold text, an image URL and a link.", color: "#d0ebff", position: 1 },
       { boardId: wall.id, authorName: "Demo Maker", subject: "React & comment", body: "Tap the heart or open a post to comment.", color: "#e5dbff", position: 2 }
     ]
