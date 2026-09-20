@@ -150,8 +150,21 @@ suitable format, and fills in starter posts:
 - "A history timeline of space exploration" → **Timeline**
 - "Brainstorm ideas for a birthday party" → **Wall** of prompts
 
-The generator runs offline (no API key required); a real LLM can be plugged into
-`src/lib/aiGenerate.ts` if desired.
+The generator runs **offline by default** (no API key required). To use a **real
+LLM**, set these environment variables (any OpenAI-compatible endpoint — OpenAI,
+Azure gateways, OpenRouter, Together, Groq, local Ollama/LM Studio, etc.):
+
+```bash
+LLM_API_KEY="sk-..."                     # your key
+LLM_BASE_URL="https://your-endpoint/v1"  # custom base URL (no trailing slash)
+LLM_MODEL="gpt-4o-mini"                  # model your endpoint expects
+```
+
+When `LLM_API_KEY` is present, "Create with AI" calls
+`POST {LLM_BASE_URL}/chat/completions` and asks the model for a strict-JSON board
+spec. If the key is missing or the call fails/times out, it automatically falls
+back to the offline generator, so the feature always works. See
+[`.env.example`](../.env.example).
 
 ### Real-time collaboration
 

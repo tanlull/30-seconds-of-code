@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/session";
 import { uniqueSlug } from "@/lib/slug";
-import { generateBoardSpec } from "@/lib/aiGenerate";
+import { generateBoard } from "@/lib/aiGenerate";
 
 export async function POST(req: NextRequest) {
   let user;
@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Describe what you want to create." }, { status: 400 });
   }
 
-  const spec = generateBoardSpec(prompt.trim());
+  const { spec, source } = await generateBoard(prompt.trim());
   const slug = await uniqueSlug(spec.title);
 
   const board = await prisma.board.create({
@@ -63,5 +63,5 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  return NextResponse.json({ slug: board.slug, format: board.format });
+  return NextResponse.json({ slug: board.slug, format: board.format, source });
 }
