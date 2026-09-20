@@ -1,6 +1,7 @@
 import Link from "next/link";
 import TopBar from "@/components/TopBar";
 import CreateBoard from "@/components/CreateBoard";
+import AiCreate from "@/components/AiCreate";
 import BoardCard from "@/components/BoardCard";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/session";
@@ -49,6 +50,7 @@ export default async function Dashboard() {
             <Link href="/gallery" className="rounded-full border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-100">
               Templates
             </Link>
+            <AiCreate canCreate={!!user} />
             <CreateBoard canCreate={!!user} />
           </div>
         </div>

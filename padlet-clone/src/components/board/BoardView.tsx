@@ -39,8 +39,6 @@ export default function BoardView({
 
   const interactingRef = useRef(0);
   const moveTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
-  const modalOpenRef = useRef(false);
-  modalOpenRef.current = !!editor || !!detailId || showSettings;
 
   const isOwner = !!user && user.id === board.owner.id;
   const wp = wallpaperById(board.wallpaper);
@@ -56,15 +54,33 @@ export default function BoardView({
     }
   }, [board.slug]);
 
-  // Live polling (paused during modals / active dragging)
+  // Real-time updates via Server-Sent Events, with a slow polling fallback.
   useEffect(() => {
-    const t = setInterval(() => {
-      if (modalOpenRef.current) return;
-      if (Date.now() - interactingRef.current < 1500) return;
+    const maybeRefresh = () => {
+      // Don't clobber an in-progress drag; everything else can refresh live.
+      if (Date.now() - interactingRef.current < 1200) return;
       refresh();
-    }, 3000);
-    return () => clearInterval(t);
-  }, [refresh]);
+    };
+
+    let es: EventSource | null = null;
+    try {
+      es = new EventSource(`/api/boards/${board.slug}/events`);
+      es.onmessage = (e) => {
+        if (e.data && e.data !== "connected") maybeRefresh();
+      };
+      es.onerror = () => {
+        /* browser auto-reconnects; polling fallback covers gaps */
+      };
+    } catch {
+      /* EventSource unsupported — rely on polling */
+    }
+
+    const poll = setInterval(maybeRefresh, 15000);
+    return () => {
+      es?.close();
+      clearInterval(poll);
+    };
+  }, [refresh, board.slug]);
 
   function flash(msg: string) {
     setToast(msg);

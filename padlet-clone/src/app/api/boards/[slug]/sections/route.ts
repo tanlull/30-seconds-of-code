@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/session";
+import { publish } from "@/lib/events";
 
 export async function POST(req: NextRequest, { params }: { params: { slug: string } }) {
   const board = await prisma.board.findUnique({ where: { slug: params.slug } });
@@ -13,5 +14,6 @@ export async function POST(req: NextRequest, { params }: { params: { slug: strin
   const section = await prisma.section.create({
     data: { boardId: board.id, title: (body.title || "New section").toString().slice(0, 60), position: count }
   });
+  publish(params.slug, "section-created");
   return NextResponse.json({ id: section.id });
 }

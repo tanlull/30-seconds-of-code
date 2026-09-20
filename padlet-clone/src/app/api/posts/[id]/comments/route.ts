@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/session";
+import { publish } from "@/lib/events";
 
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
   const post = await prisma.post.findUnique({ where: { id: params.id }, include: { board: true } });
@@ -22,5 +23,6 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       body: text
     }
   });
+  publish(post.board.slug, "comment");
   return NextResponse.json({ id: comment.id });
 }

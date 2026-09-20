@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/session";
+import { publish } from "@/lib/events";
 
 async function ownsSection(id: string, userId?: string) {
   const section = await prisma.section.findUnique({ where: { id }, include: { board: true } });
@@ -19,6 +20,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     where: { id: params.id },
     data: { title: (body.title || "Section").toString().slice(0, 60) }
   });
+  publish(section.board.slug, "section-updated");
   return NextResponse.json({ ok: true });
 }
 
@@ -28,5 +30,6 @@ export async function DELETE(_req: NextRequest, { params }: { params: { id: stri
   if (section === null) return NextResponse.json({ error: "Not found" }, { status: 404 });
   if (section === false) return NextResponse.json({ error: "Owner only" }, { status: 403 });
   await prisma.section.delete({ where: { id: params.id } });
+  publish(section.board.slug, "section-deleted");
   return NextResponse.json({ ok: true });
 }

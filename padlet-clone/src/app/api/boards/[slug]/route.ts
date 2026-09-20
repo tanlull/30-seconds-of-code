@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser, getVisitorKey } from "@/lib/session";
 import { getBoardBySlug, serializeBoard } from "@/lib/serialize";
+import { publish } from "@/lib/events";
 
 export async function GET(_req: NextRequest, { params }: { params: { slug: string } }) {
   const board = await getBoardBySlug(params.slug);
@@ -33,6 +34,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { slug: stri
     if (key in body) data[key] = body[key];
   }
   const updated = await prisma.board.update({ where: { id: board.id }, data });
+  publish(updated.slug, "board-updated");
   return NextResponse.json({ ok: true, board: { slug: updated.slug, format: updated.format } });
 }
 
