@@ -12,3 +12,7 @@ prisma/dev.db-journal
 # env
 .env
 .env.local
+
+# TS build cache
+tsconfig.tsbuildinfo
+*.tsbuildinfo
